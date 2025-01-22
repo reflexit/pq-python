@@ -1,0 +1,3 @@
+*.pq
+*.bak
+/__pycache__/
