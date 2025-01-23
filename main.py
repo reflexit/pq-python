@@ -93,21 +93,21 @@ class Player:
 
                 self.print_log("Heading to the killing fields...", 4)
                 while sum(self.items.values()) < self.stats[0] + 10:
-                    monster, qty = self.monster_task()
-                    if monster[1] > self.level + 5:
+                    name, orig_name, lev, loot, qty = self.monster_task()
+                    if lev > self.level + 5:
                         exp = 7
-                    elif monster[1] < self.level - 5:
+                    elif lev < self.level - 5:
                         exp = 5
                     else:
                         exp = 6
                     if qty > 1:
-                        self.print_log("Executing " + str(monster[1]) + " " + monster[0] + "...", exp)
+                        self.print_log("Executing " + str(qty) + " " + name + "...", exp)
                     else:
-                        self.print_log("Executing " + monster[0] + "...", exp)
-                    if monster[2] == "*":
+                        self.print_log("Executing " + name + "...", exp)
+                    if loot == "*":
                         self.win_item()
                     else:
-                        self.items[monster[0] + " " + monster[2]] += 1
+                        self.items[orig_name + " " + loot] += 1
 
                     self.exp += exp
                     if self.exp >= self.exp_needed:
@@ -185,7 +185,8 @@ class Player:
         elif level - lev > 0:
             name = self.special(level - lev, name)
 
-        return (name, lev, monster[2]), qty
+        # full name, original name, level, loot, quantity
+        return name, monster[0], lev, monster[2], qty
 
     def complete_act(self):
         self.print_log(self.act_caption + " completed")
