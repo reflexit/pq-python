@@ -40,6 +40,7 @@ The game will start and continue progressing automatically.
 - Some game mechanics may differ or be simplified compared to the original.
     - I know nothing about Pascal, so I made some educated guesses during development.
 - Multiple save files are not supported. Only one save file (`save.pq`) is maintained at a time.
+- Online features are not available.
 
 ## License
 
