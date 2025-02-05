@@ -73,7 +73,7 @@ class Player:
                     self.print_log("Selling " + str(self.items[item]) + " " + item + "...", 1)
                     price = self.items[item] * self.level
                     if " of " in item:
-                        price *= (1 + random.randrange(10)) * (1 + random.randrange(self.level))
+                        price *= (1 + self.random_low(10)) * (1 + self.random_low(self.level))
                     self.gold += price
                     del self.items[item]
 
@@ -141,7 +141,7 @@ class Player:
             if random.random() < 0.5:
                 monster = "passing" + monster + " " + random.choice(KLASSES)
             else:
-                monster = random.choice(TITLES) + " " + self.generate_name() + " the" + monster
+                monster = TITLES[self.random_low(len(TITLES))] + " " + self.generate_name() + " the" + monster
             lev = level
             monster = (monster, level, "*")
         else:   # pick the monster out of so many random ones closest to the level we want
@@ -242,17 +242,6 @@ class Player:
             self.quest_caption = "Placate " + monster[0]
         self.print_log("New quest: " + self.quest_caption)
 
-    def char_sheet(self):
-        print("[CHARACTER SHEET]")
-        print("Level {:d} ({:d}/{:d})".format(self.level, self.exp, self.exp_needed))
-        self.print_stats()
-        print("HP Max {:d}, MP Max {:d}".format(self.HP, self.MP))
-        print("Plot Stage: {:s} ({:.2%})".format(self.act_caption, self.act_progress / self.act_time))
-        print("Inventory: {:d}/{:d}    Gold: {:d}".format(sum(self.items.values()), self.stats["STR"] + 10, self.gold))
-        print("Prized Item: {:s}".format(self.best_equip()))
-        if self.spells:
-            print("Specialty: {:s}".format(self.best_spells()))
-
     def interplot_cinematic(self):
         r = random.randrange(3)
         if r == 0:
@@ -310,13 +299,6 @@ class Player:
         res = res.capitalize()
         return res
 
-    def level_up_time(self, level):
-        # ~20 minutes for level 1, eventually dominated by exponential
-        return round((20 + 1.15 ** level) * 60)
-
-    def equip_price(self):
-        return 5 * self.level * self.level + 10 * self.level + 20
-
     def level_up(self):
         self.level += 1
         self.HP += self.stats["CON"] // 3 + 1 + random.randrange(4)
@@ -330,12 +312,9 @@ class Player:
         self.save_game()
 
     def win_spell(self):
-        stuff = SPELLS
-        if self.stats["WIS"] + self.level < len(stuff):
-            stuff = stuff[:self.stats["WIS"] + self.level]
-        spell = random.choice(stuff)
-        self.spells[spell] += 1
-        self.print_log("Gained spell: " + spell)
+        idx = self.random_low(min(self.stats["WIS"] + self.level, len(SPELLS)))
+        self.spells[SPELLS[idx]] += 1
+        self.print_log("Gained spell: " + SPELLS[idx])
 
     def win_equip(self):
         # determine equipment slot
@@ -405,6 +384,17 @@ class Player:
 
     def boring_item(self):
         return random.choice(BORING_ITEMS)
+
+    def char_sheet(self):
+        print("[CHARACTER SHEET]")
+        print("Level {:d} ({:d}/{:d})".format(self.level, self.exp, self.exp_needed))
+        self.print_stats()
+        print("HP Max {:d}, MP Max {:d}".format(self.HP, self.MP))
+        print("Plot Stage: {:s} ({:.2%})".format(self.act_caption, self.act_progress / self.act_time))
+        print("Inventory: {:d}/{:d}    Gold: {:d}".format(sum(self.items.values()), self.stats["STR"] + 10, self.gold))
+        print("Prized Item: {:s}".format(self.best_equip()))
+        if self.spells:
+            print("Specialty: {:s}".format(self.best_spells()))
 
     def best_equip(self):
         equips = [equip for equip in self.equips if equip[0]]
@@ -490,6 +480,24 @@ class Player:
         else:
             return s
 
+    def random_low(self, below):
+        return min(random.randrange(below), random.randrange(below))
+
+    def level_up_time(self, level):
+        # ~20 minutes for level 1, eventually dominated by exponential
+        return round((20 + 1.15 ** level) * 60)
+
+    def equip_price(self):
+        return 5 * self.level * self.level + 10 * self.level + 20
+
+    def print_stats(self):
+        print(", ".join(["{:s}: {:d}".format(k, self.stats[k]) for k in self.stats]))
+
+    def print_log(self, msg, sec=0):
+        print("[{:s}] {:s}".format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), msg))
+        if sec > 0 and not self.cheat:
+            time.sleep(sec)
+
     def save_game(self):
         if os.path.isfile("save.pq"):
             os.replace("save.pq", "save.pq.bak")
@@ -500,14 +508,6 @@ class Player:
     def load_game(cls):
         with open("save.pq", "rb") as fin:
             return pickle.load(fin)
-
-    def print_log(self, msg, sec=0):
-        print("[{:s}] {:s}".format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), msg))
-        if sec > 0 and not self.cheat:
-            time.sleep(sec)
-
-    def print_stats(self):
-        print(", ".join(["{:s}: {:d}".format(k, self.stats[k]) for k in self.stats]))
 
     def int_to_roman(self, n):
         # I = 1
