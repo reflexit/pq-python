@@ -15,9 +15,9 @@ class Player:
         self.level = 1
         self.exp = 0
         self.exp_needed = self.level_up_time(1)
-        self.stats = self.roll()
-        self.HP = max(1, random.randrange(8) + self.stats[1] // 6)
-        self.MP = max(1, random.randrange(8) + self.stats[3] // 6)
+        self.roll()
+        self.HP = max(1, random.randrange(8) + self.stats["CON"] // 6)
+        self.MP = max(1, random.randrange(8) + self.stats["INT"] // 6)
 
         # inventory
         self.gold = 0
@@ -40,13 +40,18 @@ class Player:
 
     def roll(self):
         while True:
-            res = []
-            for _ in range(6):
-                res.append(3 + random.randrange(6) + random.randrange(6) + random.randrange(6))
-            print("STR {:d}, CON {:d}, DEX {:d}, INT {:d}, WIS {:d}, CHA {:d}".format(*res))
+            self.stats = {
+                "STR": 3 + random.randrange(6) + random.randrange(6) + random.randrange(6),
+                "CON": 3 + random.randrange(6) + random.randrange(6) + random.randrange(6),
+                "DEX": 3 + random.randrange(6) + random.randrange(6) + random.randrange(6),
+                "INT": 3 + random.randrange(6) + random.randrange(6) + random.randrange(6),
+                "WIS": 3 + random.randrange(6) + random.randrange(6) + random.randrange(6),
+                "CHA": 3 + random.randrange(6) + random.randrange(6) + random.randrange(6),
+            }
+            self.print_stats()
             ans = input("Go? (Y/N) ")
             if ans == "Y" or ans == "y":
-                return res
+                return
 
     def new_game(self):
         self.char_sheet()
@@ -87,12 +92,12 @@ class Player:
                     self.state = "kill"
             elif self.state == "kill":
                 # special case where the inventory is full after loading game
-                if sum(self.items.values()) >= self.stats[0] + 10:
+                if sum(self.items.values()) >= self.stats["STR"] + 10:
                     self.state = "sell"
                     continue
 
                 self.print_log("Heading to the killing fields...", 4)
-                while sum(self.items.values()) < self.stats[0] + 10:
+                while sum(self.items.values()) < self.stats["STR"] + 10:
                     name, orig_name, lev, loot, qty = self.monster_task()
                     duration = 6 * lev // self.level
                     if qty > 1:
@@ -240,10 +245,10 @@ class Player:
     def char_sheet(self):
         print("[CHARACTER SHEET]")
         print("Level {:d} ({:d}/{:d})".format(self.level, self.exp, self.exp_needed))
-        print("STR {:d}, CON {:d}, DEX {:d}, INT {:d}, WIS {:d}, CHA {:d}".format(*self.stats))
+        self.print_stats()
         print("HP Max {:d}, MP Max {:d}".format(self.HP, self.MP))
         print("Plot Stage: {:s} ({:.2%})".format(self.act_caption, self.act_progress / self.act_time))
-        print("Inventory: {:d}/{:d}    Gold: {:d}".format(sum(self.items.values()), self.stats[0] + 10, self.gold))
+        print("Inventory: {:d}/{:d}    Gold: {:d}".format(sum(self.items.values()), self.stats["STR"] + 10, self.gold))
         print("Prized Item: {:s}".format(self.best_equip()))
         if self.spells:
             print("Specialty: {:s}".format(self.best_spells()))
@@ -314,8 +319,8 @@ class Player:
 
     def level_up(self):
         self.level += 1
-        self.HP += self.stats[1] // 3 + 1 + random.randrange(4)
-        self.MP += self.stats[3] // 3 + 1 + random.randrange(4)
+        self.HP += self.stats["CON"] // 3 + 1 + random.randrange(4)
+        self.MP += self.stats["INT"] // 3 + 1 + random.randrange(4)
         for i in range(2):
             self.win_stat()
         self.win_spell()
@@ -326,8 +331,8 @@ class Player:
 
     def win_spell(self):
         stuff = SPELLS
-        if self.stats[4] + self.level < len(stuff):
-            stuff = stuff[:self.stats[4] + self.level]
+        if self.stats["WIS"] + self.level < len(stuff):
+            stuff = stuff[:self.stats["WIS"] + self.level]
         spell = random.choice(stuff)
         self.spells[spell] += 1
         self.print_log("Gained spell: " + spell)
@@ -370,19 +375,19 @@ class Player:
 
     def win_stat(self):
         if random.random() < 0.5:
-            i = random.randrange(len(self.stats))
+            k = random.choice(list(self.stats))
         else:
             # favor the best stats so they will tend to clump
             t = 0
-            for i in range(len(self.stats)):
-                t += self.stats[i] * self.stats[i]
+            for k in self.stats:
+                t += self.stats[k] * self.stats[k]
             t = 0x3FFFFFFFFFFFFFFF % t
-            i = -1
-            while t >= 0:
-                i += 1
-                t -= self.stats[i] * self.stats[i]
-        self.stats[i] += 1
-        self.print_log("Gained stat: " + self.idx_to_stat(i))
+            for k in self.stats:
+                t -= self.stats[k] * self.stats[k]
+                if t < 0:
+                    break
+        self.stats[k] += 1
+        self.print_log("Gained stat: " + k)
 
     def win_item(self):
         if max(250, random.randrange(999)) < len(self.items):
@@ -422,22 +427,6 @@ class Player:
 
     def spell_name(self, spell):
         return "{:s} {:s}".format(spell[0], self.int_to_roman(spell[1]))
-
-    def idx_to_stat(self, idx):
-        if idx == 0:
-            return "STR"
-        elif idx == 1:
-            return "CON"
-        elif idx == 2:
-            return "DEX"
-        elif idx == 3:
-            return "INT"
-        elif idx == 4:
-            return "WIS"
-        elif idx == 5:
-            return "CHA"
-        else:
-            raise
 
     def sick(self, m, s):
         if m == -5 or m == 5:
@@ -516,6 +505,9 @@ class Player:
         print("[{:s}] {:s}".format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), msg))
         if sec > 0 and not self.cheat:
             time.sleep(sec)
+
+    def print_stats(self):
+        print(", ".join(["{:s}: {:d}".format(k, self.stats[k]) for k in self.stats]))
 
     def int_to_roman(self, n):
         # I = 1
