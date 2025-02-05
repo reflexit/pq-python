@@ -34,6 +34,7 @@ class Player:
         # quest
         self.quest_progress = 0
         self.quest_caption = ""
+        self.quest_monster = None
 
         # debug only
         self.cheat = False
@@ -144,6 +145,9 @@ class Player:
                 monster = TITLES[self.random_low(len(TITLES))] + " " + self.generate_name() + " the" + monster
             lev = level
             monster = (monster, level, "*")
+        elif "Exterminate" in self.quest_caption and random.random() < 0.25:    # use the quest monster
+            monster = self.quest_monster
+            lev = monster[1]
         else:   # pick the monster out of so many random ones closest to the level we want
             monster = random.choice(MONSTERS)
             lev = monster[1]
@@ -226,6 +230,7 @@ class Player:
                 if i == 0 or abs(m[1] - self.level) < abs(level - self.level):
                     level = m[1]
                     monster = m
+            self.quest_monster = monster
             self.quest_caption = "Exterminate " + monster[0]
         elif quest_type == 1:
             self.quest_caption = "Seek " + self.interesting_item()
