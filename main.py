@@ -399,20 +399,17 @@ class Player:
         print("Inventory: {:d}/{:d}    Gold: {:d}".format(sum(self.items.values()), self.stats["STR"] + 10, self.gold))
         print("Prized Item: {:s}".format(self.best_equip()))
         if self.spells:
-            print("Specialty: {:s}".format(self.best_spells()))
+            print("Specialty: {:s}".format(self.best_spell()))
 
     def best_equip(self):
         equips = [equip for equip in self.equips if equip[0]]
         equips.sort(key=lambda x: x[1], reverse=True)
         return self.equip_name(equips[0])
 
-    def best_spells(self):
+    def best_spell(self):
         spells = list(self.spells.items())
         spells.sort(key=lambda x: x[1], reverse=True)
-        if len(spells) > 3:
-            spells = spells[:3]
-        spells = [self.spell_name(spell) for spell in spells]
-        return ", ".join(spells)
+        return self.spell_name(spells[0])
 
     def equip_name(self, equip):
         if equip[1] == 0:
@@ -496,7 +493,7 @@ class Player:
         return 5 * self.level * self.level + 10 * self.level + 20
 
     def print_stats(self):
-        print(", ".join(["{:s}: {:d}".format(k, self.stats[k]) for k in self.stats]))
+        print(", ".join(["{:s} {:d}".format(k, self.stats[k]) for k in self.stats]))
 
     def print_log(self, msg, sec=0):
         print("[{:s}] {:s}".format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), msg))
