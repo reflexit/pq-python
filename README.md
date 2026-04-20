@@ -1,8 +1,8 @@
-# Progress Quest: The Python CLI Edition
+# Progress Quest: The Python Edition
 
-This is a Python-based command-line interface (CLI) reimplementation of [**Progress Quest**](http://progressquest.com/), an antic and fantastical computer role-playing game.
+This is a Python-based reimplementation of [**Progress Quest**](http://progressquest.com/), an antic and fantastical computer role-playing game.
 
-The goal of this project is to create a portable edition of the original game. At present, it only requires the Python Standard Library. No third-party libraries are needed.
+The goal of this project is to create a portable edition of the original game. At present, it only requires the Python Standard Library (including Tkinter). No third-party libraries are needed.
 
 Note that this project is **not** intended to be an exact replica of the original game. However, effort has been made to ensure that the game mechanics are as close as possible to the original. See [Known Limitations](#known-limitations) for more details.
 
@@ -50,4 +50,4 @@ This project is licensed under the MIT License. See LICENSE.txt for more details
 
 This project is based on the original **Progress Quest** game and its [source code](https://bitbucket.org/grumdrig/pq/). Special thanks to the original creators and contributors for their inspiration and for making this project possible.
 
-Some code and ideas are adapted from [**pq-cli**](https://github.com/rr-/pq-cli), another CLI edition of **Progress Quest**.
+Some code and ideas are adapted from [**pq-cli**](https://github.com/rr-/pq-cli), a CLI edition of **Progress Quest**.

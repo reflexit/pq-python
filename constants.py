@@ -672,3 +672,17 @@ NAME_PARTS = [
     ["a", "a", "e", "e", "i", "i", "o", "o", "u", "u", "ae", "ie", "oo", "ou"],
     ["b", "ck", "d", "g", "k", "m", "n", "p", "t", "v", "x", "z"],
 ]
+
+EQUIPMENT_PARTS = [
+    "Weapon",
+    "Shield",
+    "Helm",
+    "Hauberk",
+    "Brassairts",
+    "Vambraces",
+    "Gauntlets",
+    "Gambeson",
+    "Cuisses",
+    "Greaves",
+    "Sollerets",
+]
