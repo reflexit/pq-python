@@ -58,13 +58,12 @@ class Player:
                 return
 
     def new_game(self):
-        self.char_sheet()
         self.print_log("Loading...", 2)
         self.print_log("Experiencing an enigmatic and foreboding night vision...", 10)
         self.print_log("Much is revealed about that wise old bastard you'd underestimated...", 6)
         self.print_log("A shocking series of events leaves you alone and bewildered, but resolute...", 6)
         self.print_log("Drawing upon an unexpected reserve of determination, you set out on a long and dangerous journey...", 4)
-        self.print_log("Loading " + self.act_caption + "...", 2)
+        self.print_log(f"Loading {self.act_caption}...", 2)
         self.new_quest()
         self.save_game()
         self.dispatch()
@@ -74,7 +73,7 @@ class Player:
             if self.state == "sell":
                 self.print_log("Heading to market to sell loot...", 4)
                 for item in list(self.items):
-                    self.print_log("Selling " + str(self.items[item]) + " " + item + "...", 1)
+                    self.print_log(f"Selling {self.items[item]} {item}...", 1)
                     price = self.items[item] * self.level
                     if " of " in item:
                         price *= (1 + self.random_low(10)) * (1 + self.random_low(self.level))
@@ -105,9 +104,9 @@ class Player:
                     name, orig_name, lev, loot, qty = self.monster_task()
                     duration = 6 * lev // self.level
                     if qty > 1:
-                        self.print_log("Executing " + str(qty) + " " + name + "...", duration)
+                        self.print_log(f"Executing {qty} {name}...", duration)
                     else:
-                        self.print_log("Executing " + name + "...", duration)
+                        self.print_log(f"Executing {name}...", duration)
                     if loot == "*":
                         self.win_item()
                     else:
@@ -141,11 +140,11 @@ class Player:
 
         # choose monster
         if random.random() < 0.04:  # use an NPC every once in a while
-            monster = " " + random.choice(RACES)
+            monster = random.choice(RACES)
             if random.random() < 0.5:
-                monster = "passing" + monster + " " + random.choice(KLASSES)
+                monster = f"passing {monster} {random.choice(KLASSES)}"
             else:
-                monster = TITLES[self.random_low(len(TITLES))] + " " + self.generate_name() + " the" + monster
+                monster = f"{TITLES[self.random_low(len(TITLES))]} {self.generate_name()} the {monster}"
             lev = level
             monster = (monster, level, "*")
         elif "Exterminate" in self.quest_caption and random.random() < 0.25:    # use the quest monster
@@ -196,21 +195,20 @@ class Player:
         return name, monster[0], level * qty, monster[2], qty
 
     def complete_act(self):
-        self.print_log(self.act_caption + " completed")
+        self.print_log(f"{self.act_caption} completed")
         self.act += 1
         self.act_time = 60 * 60 * (1 + 5 * self.act)    # 1 hr + 5 per act
         self.act_progress = 0
-        self.act_caption = "Act " + self.int_to_roman(self.act)
+        self.act_caption = f"Act {self.int_to_roman(self.act)}"
         if self.act > 2:
             self.win_item()
         if self.act > 3:
             self.win_equip()
-        self.char_sheet()
         self.save_game()
         self.interplot_cinematic()
 
     def complete_quest(self):
-        self.print_log("Quest completed: " + self.quest_caption)
+        self.print_log(f"Quest completed: {self.quest_caption}")
         reward = random.randrange(4)
         if reward == 0:
             self.win_spell()
@@ -220,7 +218,6 @@ class Player:
             self.win_stat()
         elif reward == 3:
             self.win_item()
-        self.char_sheet()
         self.new_quest()
         self.save_game()
 
@@ -234,21 +231,21 @@ class Player:
                     level = m[1]
                     monster = m
             self.quest_monster = monster
-            self.quest_caption = "Exterminate " + monster[0]
+            self.quest_caption = f"Exterminate {monster[0]}"
         elif quest_type == 1:
-            self.quest_caption = "Seek " + self.interesting_item()
+            self.quest_caption = f"Seek {self.interesting_item()}"
         elif quest_type == 2:
-            self.quest_caption = "Deliver this " + self.boring_item()
+            self.quest_caption = f"Deliver this {self.boring_item()}"
         elif quest_type == 3:
-            self.quest_caption = "Fetch me " + self.boring_item()
+            self.quest_caption = f"Fetch me {self.boring_item()}"
         elif quest_type == 4:
             for i in range(2):
                 m = random.choice(MONSTERS)
                 if i == 0 or abs(m[1] - self.level) < abs(level - self.level):
                     level = m[1]
                     monster = m
-            self.quest_caption = "Placate " + monster[0]
-        self.print_log("New quest: " + self.quest_caption)
+            self.quest_caption = f"Placate {monster[0]}"
+        self.print_log(f"New quest: {self.quest_caption}")
 
     def interplot_cinematic(self):
         r = random.randrange(3)
@@ -260,27 +257,27 @@ class Player:
         elif r == 1:
             self.print_log("Your quarry is in sight, but a mighty enemy bars your path!", 1)
             nemesis = self.named_monster(self.level + 3)
-            self.print_log("A desperate struggle commences with " + nemesis + "...", 4)
+            self.print_log(f"A desperate struggle commences with {nemesis}...", 4)
             s = random.randrange(3)
             for _ in range(self.act):
                 s += 1 + random.randrange(2)
                 if s % 3 == 0:
-                    self.print_log("Locked in grim combat with " + nemesis + "...", 2)
+                    self.print_log(f"Locked in grim combat with {nemesis}...", 2)
                 elif s % 3 == 1:
-                    self.print_log(nemesis + " seems to have the upper hand...", 2)
+                    self.print_log(f"{nemesis} seems to have the upper hand...", 2)
                 else:
-                    self.print_log("You seem to gain the advantage over " + nemesis + "...", 2)
-            self.print_log("Victory! " + nemesis + " is slain! Exhausted, you lose conciousness...", 3)
+                    self.print_log(f"You seem to gain the advantage over {nemesis}...", 2)
+            self.print_log(f"Victory! {nemesis} is slain! Exhausted, you lose conciousness...", 3)
             self.print_log("You awake in a friendly place, but the road awaits...", 2)
         else:
             nemesis = self.impressive_guy()
-            self.print_log("Oh sweet relief! You've reached the kind protection of " + nemesis + "...", 2)
-            self.print_log("There is rejoicing, and an unnerving encouter with " + nemesis + " in private...", 3)
-            self.print_log("You forget your " + self.boring_item() + " and go back to get it...", 2)
+            self.print_log(f"Oh sweet relief! You've reached the kind protection of {nemesis}...", 2)
+            self.print_log(f"There is rejoicing, and an unnerving encouter with {nemesis} in private...", 3)
+            self.print_log(f"You forget your {self.boring_item()} and go back to get it...", 2)
             self.print_log("What's this!? You overhear something shocking!", 2)
-            self.print_log("Could " + nemesis + " be a dirty double-dealer?", 2)
+            self.print_log(f"Could {nemesis} be a dirty double-dealer?", 2)
             self.print_log("Who can possibly be trusted with this news!? -- Oh yes, of course...", 3)
-        self.print_log("Loading " + self.act_caption + "...", 2)
+        self.print_log(f"Loading {self.act_caption}...", 2)
 
     def named_monster(self, level):
         lev = 0
@@ -290,14 +287,14 @@ class Player:
             if abs(level - m[1]) < abs(level - lev):
                 res = m[0]
                 lev = m[1]
-        return self.generate_name() + " the " + res
+        return f"{self.generate_name()} the {res}"
 
     def impressive_guy(self):
         res = random.choice(IMPRESSIVE_TITLES)
         if random.random() < 0.5:
-            res = "the " + res + " of the " + random.choice(RACES)
+            res = f"the {res} of the {random.choice(RACES)}"
         else:
-            res = res + " " + self.generate_name() + " of " + self.generate_name()
+            res = f"{res} {self.generate_name()} of {self.generate_name()}"
         return res
 
     def generate_name(self):
@@ -316,13 +313,12 @@ class Player:
         self.win_spell()
         self.exp = 0
         self.exp_needed = self.level_up_time(self.level)
-        self.char_sheet()
         self.save_game()
 
     def win_spell(self):
         idx = self.random_low(min(self.stats["WIS"] + self.level, len(SPELLS)))
         self.spells[SPELLS[idx]] += 1
-        self.print_log("Gained spell: " + SPELLS[idx])
+        self.print_log(f"Gained spell: {SPELLS[idx]}")
 
     def win_equip(self):
         # determine equipment slot
@@ -358,7 +354,7 @@ class Player:
             plus -= modifier[1]
             count += 1
         self.equips[posn] = (name, plus)
-        self.print_log("Gained equipment: " + self.equip_name((name, plus)))
+        self.print_log(f"Gained equipment: {self.equip_name((name, plus))}")
 
     def win_stat(self):
         if random.random() < 0.5:
@@ -374,7 +370,7 @@ class Player:
                 if t < 0:
                     break
         self.stats[k] += 1
-        self.print_log("Gained stat: " + k)
+        self.print_log(f"Gained stat: {k}")
 
     def win_item(self):
         if max(250, random.randrange(999)) < len(self.items):
@@ -382,46 +378,25 @@ class Player:
         else:
             item = self.special_item()
         self.items[item] += 1
-        self.print_log("Gained item: " + item)
+        self.print_log(f"Gained item: {item}")
 
     def special_item(self):
-        return self.interesting_item() + " of " + random.choice(ITEM_OFS)
+        return f"{self.interesting_item()} of {random.choice(ITEM_OFS)}"
 
     def interesting_item(self):
-        return random.choice(ITEM_ATTRIB) + " " + random.choice(SPECIALS)
+        return f"{random.choice(ITEM_ATTRIB)} {random.choice(SPECIALS)}"
 
     def boring_item(self):
         return random.choice(BORING_ITEMS)
-
-    def char_sheet(self):
-        print("[CHARACTER SHEET]")
-        print("Level {:d} ({:d}/{:d})".format(self.level, self.exp, self.exp_needed))
-        self.print_stats()
-        print("HP Max {:d}, MP Max {:d}".format(self.HP, self.MP))
-        print("Plot Stage: {:s} ({:.2%})".format(self.act_caption, self.act_progress / self.act_time))
-        print("Inventory: {:d}/{:d}    Gold: {:d}".format(sum(self.items.values()), self.stats["STR"] + 10, self.gold))
-        print("Prized Item: {:s}".format(self.best_equip()))
-        if self.spells:
-            print("Specialty: {:s}".format(self.best_spell()))
-
-    def best_equip(self):
-        equips = [equip for equip in self.equips if equip[0]]
-        equips.sort(key=lambda x: x[1], reverse=True)
-        return self.equip_name(equips[0])
-
-    def best_spell(self):
-        spells = list(self.spells.items())
-        spells.sort(key=lambda x: x[1], reverse=True)
-        return self.spell_name(spells[0])
 
     def equip_name(self, equip):
         if equip[1] == 0:
             return equip[0]
         else:
-            return "{:+d} {:s}".format(equip[1], equip[0])
+            return f"{equip[1]:+d} {equip[0]}"
 
     def spell_name(self, spell):
-        return "{:s} {:s}".format(spell[0], self.int_to_roman(spell[1]))
+        return f"{spell[0]} {self.int_to_roman(spell[1])}"
 
     def sick(self, m, s):
         if m == -5 or m == 5:
@@ -496,11 +471,11 @@ class Player:
         return 5 * self.level * self.level + 10 * self.level + 20
 
     def print_stats(self):
-        print(", ".join(["{:s} {:d}".format(k, self.stats[k]) for k in self.stats]))
+        print(", ".join([f"{k} {self.stats[k]}" for k in self.stats]))
 
     def print_log(self, msg, sec=0):
         self.msg = msg
-        print("[{:s}] {:s}".format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), msg))
+        print(f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {msg}")
         if sec > 0 and not self.cheat:
             time.sleep(sec)
 
