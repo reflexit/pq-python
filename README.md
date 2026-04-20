@@ -22,10 +22,6 @@ python3 main.py
 
 The game will start and continue progressing automatically.
 
-### Keyboard Quick Reference
-
-- Ctrl+C: Exit **Progress Quest**
-
 ### Saving and Loading
 
 - **Saving**: The game automatically saves your progress to `save.pq` located in the project directory on a periodic basis.
