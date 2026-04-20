@@ -36,13 +36,13 @@ class ProgressQuestGUI:
         self.char_frame = tk.LabelFrame(self.root, text="Character Sheet")
         self.char_frame.grid(row=0, column=0, padx=10, pady=5, sticky="nswe")
 
-        self.lbl_level = tk.Label(self.char_frame, text="", anchor="w", font=("Arial", 10, "bold"))
+        self.lbl_level = tk.Label(self.char_frame, text="", anchor="w", justify=tk.LEFT, font=("Consolas", 10, "bold"))
         self.lbl_level.grid(row=0, column=0, padx=5, pady=2, sticky="we")
 
-        self.lbl_stats = tk.Label(self.char_frame, text="", anchor="w", justify=tk.LEFT, font=("Arial", 10))
+        self.lbl_stats = tk.Label(self.char_frame, text="", anchor="w", justify=tk.LEFT, font=("Consolas", 10))
         self.lbl_stats.grid(row=1, column=0, padx=5, pady=2, sticky="we")
 
-        self.lbl_hp_mp = tk.Label(self.char_frame, text="", anchor="w", justify=tk.LEFT, font=("Arial", 10))
+        self.lbl_hp_mp = tk.Label(self.char_frame, text="", anchor="w", justify=tk.LEFT, font=("Consolas", 10))
         self.lbl_hp_mp.grid(row=2, column=0, padx=5, pady=2, sticky="we")
 
         # ---------------- 2. Equipment ----------------
@@ -114,7 +114,7 @@ class ProgressQuestGUI:
         p = self.player
 
         # 1. update Character Sheet
-        self.lbl_level.config(text=f"Level {p.level} (EXP: {p.exp} / {p.exp_needed})")
+        self.lbl_level.config(text=f"Level {p.level}\nEXP: {p.exp} / {p.exp_needed}")
         self.lbl_hp_mp.config(text=f"HP Max: {p.HP}\nMP Max: {p.MP}")
 
         stats = [f"{k}: {p.stats[k]}" for k in p.stats]
